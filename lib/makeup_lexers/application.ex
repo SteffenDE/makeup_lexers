@@ -12,6 +12,12 @@ defmodule MakeupLexers.Application do
       extensions: ["js"]
     )
 
+    Registry.register_lexer(JavascriptLexer,
+      options: [],
+      names: ["xml"],
+      extensions: ["xml"]
+    )
+
     Supervisor.start_link([], strategy: :one_for_one)
   end
 end
