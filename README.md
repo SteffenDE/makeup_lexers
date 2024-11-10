@@ -1,21 +1,15 @@
 # MakeupLexers
 
-**TODO: Add description**
+A collection of custom lexers for [Makeup](https://github.com/elixir-makeup/makeup).
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `makeup_lexers` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `makeup_lexers` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:makeup_lexers, "~> 0.1.0"}
+    {:makeup_lexers, github: "SteffenDE/makeup_lexers"}
   ]
 end
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/makeup_lexers>.
-
