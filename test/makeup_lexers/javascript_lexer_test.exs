@@ -1,6 +1,6 @@
-defmodule Makeup.Lexers.JavascriptLexerTest do
+defmodule MakeupLexers.JavascriptLexerTest do
   use ExUnit.Case, async: true
-  alias Makeup.Lexers.JavascriptLexer
+  alias MakeupLexers.JavascriptLexer
 
   # Helper function to lex and return tokens
   defp lex(text) do

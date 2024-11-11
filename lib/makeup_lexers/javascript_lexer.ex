@@ -1,4 +1,4 @@
-defmodule Makeup.Lexers.JavascriptLexer do
+defmodule MakeupLexers.JavascriptLexer do
   @moduledoc """
   A `Makeup` lexer for the JavaScript language.
 

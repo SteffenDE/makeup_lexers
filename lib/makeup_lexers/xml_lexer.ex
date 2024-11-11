@@ -1,4 +1,4 @@
-defmodule Makeup.Lexers.XMLLexer do
+defmodule MakeupLexers.XMLLexer do
   @moduledoc """
   A `Makeup` lexer for XML (eXtensible Markup Language).
   """
@@ -16,8 +16,9 @@ defmodule Makeup.Lexers.XMLLexer do
   whitespace = ascii_string([?\r, ?\s, ?\n, ?\t], min: 1) |> token(:whitespace)
 
   # Basic XML name, following W3C spec for valid tag/attribute names
+  # we also allow tags starting with . (HEEx)
   xml_name =
-    ascii_string([?a..?z, ?A..?Z, ?_, ?:], 1)
+    ascii_string([?a..?z, ?A..?Z, ?_, ?:, ?.], 1)
     |> concat(ascii_string([?a..?z, ?A..?Z, ?0..?9, ?_, ?:, ?., ?-], min: 0))
     |> lexeme()
 
@@ -92,8 +93,14 @@ defmodule Makeup.Lexers.XMLLexer do
     |> token(:name_attribute)
     |> concat(optional(whitespace))
     |> concat(token(string("="), :operator))
-    |> concat(optional(whitespace))
-    |> concat(attribute_value)
+    |> concat(
+      optional(
+        choice([
+          whitespace |> concat(attribute_value),
+          attribute_value
+        ])
+      )
+    )
 
   # Doctype declarations
   doctype_inner =
@@ -198,8 +205,8 @@ defmodule Makeup.Lexers.XMLLexer do
     export_combinator: true
   )
 
-  defparsec(:doctype, doctype)
-  defparsec(:doctype_inner, doctype_inner)
+  defcombinator(:attribute, attribute)
+  defcombinator(:attribute_value, attribute_value)
 
   ###################################################################
   # Step #2: postprocess the list of tokens

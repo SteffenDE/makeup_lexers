@@ -1,6 +1,6 @@
-defmodule Makeup.Lexers.XMLLexerTest do
+defmodule MakeupLexers.XMLLexerTest do
   use ExUnit.Case, async: true
-  alias Makeup.Lexers.XMLLexer
+  alias MakeupLexers.XMLLexer
 
   # Helper function to lex and return tokens without metadata
   defp lex(text) do
