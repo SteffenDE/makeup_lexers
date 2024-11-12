@@ -7,7 +7,7 @@ defmodule MakeupLexers.Application do
   def start(_type, _args) do
     Registry.register_lexer(MakeupLexers.JavascriptLexer,
       options: [],
-      names: ["javascript"],
+      names: ["javascript", "js"],
       extensions: ["js"]
     )
 
