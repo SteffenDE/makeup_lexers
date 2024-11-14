@@ -1,4 +1,4 @@
-defmodule MakeupLexers.Helper do
+defmodule MakeupLexers.Helpers do
   @moduledoc false
   import NimbleParsec
 

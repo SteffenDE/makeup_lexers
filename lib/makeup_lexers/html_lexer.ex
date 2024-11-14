@@ -49,9 +49,27 @@ defmodule MakeupLexers.HTMLLexer do
 
   script = many_surrounded_by(script_content, string("<script"), string("</script>"), :script)
 
+  style_content =
+    repeat(
+      lookahead_not(string(">"))
+      |> choice([
+        whitespace,
+        attribute
+      ])
+    )
+    |> concat(token(string(">"), :punctuation))
+    |> concat(
+      repeat(lookahead_not(string("</style>")) |> utf8_char([]))
+      |> lexeme()
+      |> token(:style_content)
+    )
+
+  style = many_surrounded_by(style_content, string("<style"), string("</style>"), :style)
+
   root_element_combinator =
     choice([
       script,
+      style,
       xml_lexer
     ])
 
@@ -75,8 +93,6 @@ defmodule MakeupLexers.HTMLLexer do
     inline: @inline,
     export_combinator: true
   )
-
-  defparsec(:script, script)
 
   defp postprocess_helper([{:script, _, "<script"} | rest]) do
     {script_tokens, rest} = get_script(rest, [])
@@ -115,6 +131,32 @@ defmodule MakeupLexers.HTMLLexer do
       ] ++ postprocess_helper(rest)
   end
 
+  defp postprocess_helper([{:style, _, "<style"} | rest]) do
+    {style_tokens, rest} = get_style(rest, [])
+
+    {{pre_content, content, post_content}, _} =
+      Enum.reduce(style_tokens, {{[], nil, []}, false}, fn
+        {:style_content, _, content}, {{pre, _, post}, false} -> {{pre, content, post}, true}
+        token, {{pre, content, post}, false} -> {{[token | pre], content, post}, false}
+        token, {{pre, content, post}, true} -> {{pre, content, [token | post]}, true}
+      end)
+
+    lexed_style = MakeupLexers.CSSLexer.lex(content)
+
+    [
+      {:punctuation, %{language: :html}, "<"},
+      {:name_tag, %{language: :html}, "style"}
+    ] ++
+      Enum.reverse(pre_content) ++
+      lexed_style ++
+      Enum.reverse(post_content) ++
+      [
+        {:punctuation, %{language: :html}, "</"},
+        {:name_tag, %{language: :html}, "style"},
+        {:punctuation, %{language: :html}, ">"}
+      ] ++ postprocess_helper(rest)
+  end
+
   defp postprocess_helper([token | tokens]), do: [token | postprocess_helper(tokens)]
   defp postprocess_helper([]), do: []
 
@@ -125,6 +167,14 @@ defmodule MakeupLexers.HTMLLexer do
   end
 
   defp get_script([token | rest], acc), do: get_script(rest, [token | acc])
+
+  defp get_style([], acc), do: {Enum.reverse(acc), []}
+
+  defp get_style([{:style, _, "</style>"} | rest], acc) do
+    {Enum.reverse(acc), rest}
+  end
+
+  defp get_style([token | rest], acc), do: get_style(rest, [token | acc])
 
   @impl Makeup.Lexer
   defgroupmatcher(:match_groups, [])

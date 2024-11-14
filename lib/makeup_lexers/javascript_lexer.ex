@@ -10,7 +10,7 @@ defmodule MakeupLexers.JavascriptLexer do
   import NimbleParsec
   import Makeup.Lexer.Combinators
   import Makeup.Lexer.Groups
-  import MakeupLexers.Helper
+  import MakeupLexers.Helpers
 
   @behaviour Makeup.Lexer
 
@@ -257,6 +257,9 @@ defmodule MakeupLexers.JavascriptLexer do
   # Arrow function needs to be before the operator combinator
   arrow = string("=>") |> token(:punctuation)
 
+  # Error fallback
+  any_char = utf8_char([]) |> token(:error)
+
   # The main parsing logic
   root_element_combinator =
     choice([
@@ -282,7 +285,8 @@ defmodule MakeupLexers.JavascriptLexer do
       array,
       block,
       punctuation,
-      identifier
+      identifier,
+      any_char
     ])
 
   # By default, don't inline the lexers.
@@ -582,10 +586,10 @@ defmodule MakeupLexers.JavascriptLexer do
   def lex(text, opts \\ []) do
     group_prefix = Keyword.get(opts, :group_prefix, random_prefix(10))
 
-    with {:ok, tokens, "", _, _, _} <- root(text) do
-      tokens
-      |> postprocess([])
-      |> match_groups(group_prefix)
-    end
+    {:ok, tokens, "", _, _, _} = root(text)
+
+    tokens
+    |> postprocess([])
+    |> match_groups(group_prefix)
   end
 end
