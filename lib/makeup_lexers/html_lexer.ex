@@ -125,12 +125,7 @@ defmodule MakeupLexers.HTMLLexer do
     ] ++
       Enum.reverse(pre_content) ++
       lexed_script ++
-      Enum.reverse(post_content) ++
-      [
-        {:punctuation, %{language: :html}, "</"},
-        {:name_tag, %{language: :html}, "script"},
-        {:punctuation, %{language: :html}, ">"}
-      ] ++ postprocess_helper(rest)
+      Enum.reverse(post_content) ++ postprocess_helper(rest)
   end
 
   defp postprocess_helper([{:style, _, "<style"} | rest]) do
@@ -151,12 +146,7 @@ defmodule MakeupLexers.HTMLLexer do
     ] ++
       Enum.reverse(pre_content) ++
       lexed_style ++
-      Enum.reverse(post_content) ++
-      [
-        {:punctuation, %{language: :html}, "</"},
-        {:name_tag, %{language: :html}, "style"},
-        {:punctuation, %{language: :html}, ">"}
-      ] ++ postprocess_helper(rest)
+      Enum.reverse(post_content) ++ postprocess_helper(rest)
   end
 
   defp postprocess_helper([token | tokens]), do: [token | postprocess_helper(tokens)]
@@ -165,7 +155,11 @@ defmodule MakeupLexers.HTMLLexer do
   defp get_script([], acc), do: {Enum.reverse(acc), []}
 
   defp get_script([{:script, _, "</script>"} | rest], acc) do
-    {Enum.reverse(acc), rest}
+    {Enum.reverse([
+       {:punctuation, %{language: :html}, ">"},
+       {:name_tag, %{language: :html}, "script"},
+       {:punctuation, %{language: :html}, "</"} | acc
+     ]), rest}
   end
 
   defp get_script([token | rest], acc), do: get_script(rest, [token | acc])
@@ -173,7 +167,11 @@ defmodule MakeupLexers.HTMLLexer do
   defp get_style([], acc), do: {Enum.reverse(acc), []}
 
   defp get_style([{:style, _, "</style>"} | rest], acc) do
-    {Enum.reverse(acc), rest}
+    {Enum.reverse([
+       {:punctuation, %{language: :html}, ">"},
+       {:name_tag, %{language: :html}, "style"},
+       {:punctuation, %{language: :html}, "</"} | acc
+     ]), rest}
   end
 
   defp get_style([token | rest], acc), do: get_style(rest, [token | acc])
