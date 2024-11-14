@@ -91,14 +91,20 @@ defmodule MakeupLexers.XMLLexer do
     |> concat(ascii_string([?a..?z, ?A..?Z, ?0..?9, ?_, ?:, ?., ?-], min: 0))
     |> lexeme()
     |> token(:name_attribute)
-    |> concat(optional(whitespace))
-    |> concat(token(string("="), :operator))
     |> concat(
+      # while XML always requires a value, we allow empty values
+      # as we reuse this lexer for HTML, where attributes without values are valid
       optional(
-        choice([
-          whitespace |> concat(attribute_value),
-          attribute_value
-        ])
+        optional(whitespace)
+        |> concat(token(string("="), :operator))
+        |> concat(
+          optional(
+            choice([
+              whitespace |> concat(attribute_value),
+              attribute_value
+            ])
+          )
+        )
       )
     )
 

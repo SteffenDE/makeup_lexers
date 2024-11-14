@@ -9,7 +9,8 @@ defmodule MakeupLexers.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: [
-        extras: Path.wildcard("examples/*.md")
+        main: "readme",
+        extras: Path.wildcard("examples/*.md") ++ ["README.md"]
       ],
       preferred_cli_env: [
         docs: :docs
@@ -33,7 +34,8 @@ defmodule MakeupLexers.MixProject do
       {:nimble_parsec, "~> 1.4"},
       {:makeup, "~> 1.2"},
       {:makeup_eex, "~> 1.0", only: :docs},
-      {:makeup_elixir, github: "elixir-makeup/makeup_elixir", branch: "master", only: :docs, override: true},
+      {:makeup_elixir,
+       github: "elixir-makeup/makeup_elixir", branch: "master", only: :docs, override: true},
       {:ex_doc, "~> 0.34", only: :docs, runtime: false}
     ]
   end

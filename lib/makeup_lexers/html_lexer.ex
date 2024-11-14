@@ -15,6 +15,8 @@ defmodule MakeupLexers.HTMLLexer do
 
   whitespace = ascii_string([?\r, ?\s, ?\n, ?\t], min: 1) |> token(:whitespace)
 
+  # special tokens for easier <script> and <style> handling
+
   type_attribute =
     string("type")
     |> token(:name_attribute)

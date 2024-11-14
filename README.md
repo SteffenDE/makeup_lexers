@@ -13,3 +13,7 @@ def deps do
   ]
 end
 ```
+
+## Examples
+
+Examples can be found in [the docs](https://steffende.github.io/makeup_lexers/).

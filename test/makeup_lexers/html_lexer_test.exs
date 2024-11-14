@@ -9,7 +9,7 @@ defmodule MakeupLexers.HTMLLexerTest do
     |> Enum.map(fn {type, _meta, value} -> {type, IO.iodata_to_binary([value])} end)
   end
 
-  describe "embedded scripts" do
+  describe "embedded lexers" do
     test "lexes text/javascript with JavascriptLexer" do
       assert lex("""
              <h1>Hello</h1>
@@ -97,5 +97,55 @@ defmodule MakeupLexers.HTMLLexerTest do
                {:whitespace, "\n"}
              ]
     end
+
+    test "lexes style with CSSLexer" do
+      assert lex("""
+             <h1>Hello</h1>
+             <style>
+               body {
+                 background-color: red;
+               }
+             </style>
+             """) == [
+               punctuation: "<",
+               name_tag: "h1",
+               punctuation: ">",
+               text: "Hello",
+               punctuation: "</",
+               name_tag: "h1",
+               punctuation: ">",
+               whitespace: "\n",
+               punctuation: "<",
+               name_tag: "style",
+               punctuation: ">",
+               whitespace: "\n  ",
+               name: "body",
+               whitespace: " ",
+               punctuation: "{",
+               whitespace: "\n    ",
+               name_builtin: "background-color",
+               punctuation: ":",
+               whitespace: " ",
+               name_constant: "red",
+               punctuation: ";",
+               whitespace: "\n  ",
+               punctuation: "}",
+               whitespace: "\n",
+               punctuation: "</",
+               name_tag: "style",
+               punctuation: ">",
+               whitespace: "\n"
+             ]
+    end
+  end
+
+  test "allows attributes without value" do
+    assert lex("<input disabled>") == [
+             {:punctuation, "<"},
+             {:name_tag, "input"},
+             {:whitespace, " "},
+             {:name_attribute, "disabled"},
+             {:punctuation, ">"}
+           ]
   end
 end
