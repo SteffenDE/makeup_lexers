@@ -12,6 +12,9 @@ defmodule MakeupLexers.JavascriptLexer do
   import Makeup.Lexer.Groups
   import MakeupLexers.Helpers
 
+  alias MakeupLexers.Javascript.ImportDeclaration
+  alias MakeupLexers.Javascript.ExportDeclaration
+
   @behaviour Makeup.Lexer
 
   # Split builtins into categories for better organization
@@ -190,12 +193,12 @@ defmodule MakeupLexers.JavascriptLexer do
     |> token(:name_property)
 
   # Process identifiers to handle keywords and builtins
-  defp process_identifier(text) do
+  @doc false
+  def process_identifier(text) do
     cond do
       # Must match exact word for keywords
       text in @builtins_special_vars -> {:name_builtin_pseudo, %{}, text}
       text in get_keywords() -> {:keyword, %{}, text}
-      text in get_keyword_namespace() -> {:keyword_namespace, %{}, text}
       text in get_keyword_declarations() -> {:keyword_declaration, %{}, text}
       text in get_keyword_reserved() -> {:keyword_reserved, %{}, text}
       text in get_keyword_constants() -> {:name_constant, %{}, text}
@@ -212,10 +215,6 @@ defmodule MakeupLexers.JavascriptLexer do
     ~w(if else for while do break return continue switch case default
        throw try catch finally yield await async with of get set static
        constructor extends implements)
-  end
-
-  defp get_keyword_namespace do
-    ~w(import export default from as)
   end
 
   defp get_keyword_declarations do
@@ -285,6 +284,8 @@ defmodule MakeupLexers.JavascriptLexer do
       array,
       block,
       punctuation,
+      parsec({ImportDeclaration, :import_declaration}),
+      parsec({ExportDeclaration, :export_declaration}),
       identifier,
       any_char
     ])
@@ -506,20 +507,6 @@ defmodule MakeupLexers.JavascriptLexer do
       declaration,
       ws,
       {:name, attrs, name}
-      | postprocess_helper(rest)
-    ]
-  end
-
-  # export default -> default should be keyword_namespace
-  defp postprocess_helper([
-         {:keyword_namespace, _, "export"} = export,
-         {:whitespace, _, _} = ws,
-         {:keyword, attrs, "default"} | rest
-       ]) do
-    [
-      export,
-      ws,
-      {:keyword_namespace, attrs, "default"}
       | postprocess_helper(rest)
     ]
   end

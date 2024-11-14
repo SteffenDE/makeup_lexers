@@ -7,6 +7,30 @@
 /* This is a multi-line comment
    showing various JavaScript features */
 
+// Module imports
+import defaultExport from "module-name";
+import * as name from "module-name";
+import { export1 } from "module-name";
+import { export1 as alias1 } from "module-name";
+import { default as alias } from "module-name";
+import { export1, export2 } from "module-name";
+import { export1, export2 as alias2 } from "module-name";
+import { "string name" as alias } from "module-name";
+import defaultExport, { export1 } from "module-name";
+import defaultExport, * as name from "module-name";
+import "module-name";
+
+// Import attributes
+import { names } from "module-name" with {};
+import { names } from "module-name" with { key: "data" };
+import { names } from "module-name" with { key: "data", key2: "data2" };
+import { names } from "module-name" with { key: "data", key2: "data2", keyN: "dataN" };
+
+export { names } from "module-name" with {};
+export { names } from "module-name" with { key: "data" };
+export { names } from "module-name" with { key: "data", key2: "data2" };
+export { names } from "module-name" with { key: "data", key2: "data2", keyN: "dataN" };
+
 // Numbers
 const integers = 42;
 const float = 3.14159;
@@ -171,11 +195,6 @@ promise
   .catch(error => console.error(error))
   .finally(() => console.log('Cleanup'));
 
-// Modules
-export const exported = 'I am exported';
-export default class MainClass {}
-export { person, Animal };
-
 // Nullish coalescing and optional chaining
 const nullish = null ?? 'default';
 const chainedValue = person?.address?.street;
@@ -204,4 +223,36 @@ if (typeof window !== 'undefined') {
     element.innerHTML = `Clicked at ${event.clientX}, ${event.clientY}`;
   });
 }
+
+// Exporting declarations
+export let name1, name2/*, … */; // also var
+export const name1 = 1, name2 = 2/*, … */; // also var, let
+export function functionName() { /* … */ }
+export class ClassName { /* … */ }
+export function* generatorFunctionName() { /* … */ }
+export const { name1, name2: bar } = o;
+export const [ name1, name2 ] = array;
+
+// Export list
+export { name1, name2, name3 };
+export { variable1 as name1, variable2 as name2, name3 };
+export { variable1 as "string name" };
+export { name1 as default, name2 };
+
+// Default exports
+export default expression;
+export default function functionName() { /* … */ }
+export default class ClassName { /* … */ }
+export default function* generatorFunctionName() { /* … */ }
+export default function () { /* … */ }
+export default class { /* … */ }
+export default function* () { /* … */ }
+
+// Aggregating modules
+export * from "module-name";
+export * as name1 from "module-name";
+export { name1, name2, name3 } from "module-name";
+export { import1 as name1, import2 as name2, name3 } from "module-name";
+export { default, import1 } from "module-name";
+export { default as name1 } from "module-name";
 ```
