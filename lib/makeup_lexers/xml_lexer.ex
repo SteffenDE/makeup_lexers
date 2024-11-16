@@ -72,7 +72,14 @@ defmodule MakeupLexers.XMLLexer do
     )
     |> concat(token(string("'"), :string))
 
-  attribute_value = choice([attribute_value_double, attribute_value_single])
+  attribute_value =
+    choice([
+      attribute_value_double,
+      attribute_value_single,
+      # HTML5 also allows <input type=text> without quotes;
+      # so while it would not be valid XML, we still allow it here
+      token(utf8_string([not: ?\s, not: ?>], min: 1), :string)
+    ])
 
   declaration =
     token(string("<"), :punctuation)
@@ -213,6 +220,8 @@ defmodule MakeupLexers.XMLLexer do
 
   defcombinator(:attribute, attribute)
   defcombinator(:attribute_value, attribute_value)
+
+  defparsec(:test, attribute_value)
 
   ###################################################################
   # Step #2: postprocess the list of tokens

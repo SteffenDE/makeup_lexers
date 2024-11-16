@@ -148,4 +148,16 @@ defmodule MakeupLexers.HTMLLexerTest do
              {:punctuation, ">"}
            ]
   end
+
+  test "attributes don't need to be quoted" do
+    assert lex("<input type=text>") == [
+             {:punctuation, "<"},
+             {:name_tag, "input"},
+             {:whitespace, " "},
+             {:name_attribute, "type"},
+             {:operator, "="},
+             {:string, "text"},
+             {:punctuation, ">"}
+           ]
+  end
 end
