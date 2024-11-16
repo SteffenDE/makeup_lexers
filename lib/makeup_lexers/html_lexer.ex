@@ -114,7 +114,7 @@ defmodule MakeupLexers.HTMLLexer do
 
     lexed_script =
       if type == "text/javascript" do
-        MakeupLexers.JavascriptLexer.lex(content)
+        maybe_lex("javascript", content) || [{:text, %{language: :html}, content}]
       else
         [{:text, %{language: :html}, content}]
       end
@@ -138,7 +138,7 @@ defmodule MakeupLexers.HTMLLexer do
         token, {{pre, content, post}, true} -> {{pre, content, [token | post]}, true}
       end)
 
-    lexed_style = MakeupLexers.CSSLexer.lex(content)
+    lexed_style = maybe_lex("css", content) || [{:text, %{language: :html}, content}]
 
     [
       {:punctuation, %{language: :html}, "<"},
@@ -175,6 +175,16 @@ defmodule MakeupLexers.HTMLLexer do
   end
 
   defp get_style([token | rest], acc), do: get_style(rest, [token | acc])
+
+  defp maybe_lex(language, content) do
+    case Makeup.Registry.fetch_lexer_by_name(language) do
+      {:ok, {lexer, opts}} ->
+        lexer.lex(content, opts)
+
+      :error ->
+        nil
+    end
+  end
 
   @impl Makeup.Lexer
   defgroupmatcher(:match_groups, [])
