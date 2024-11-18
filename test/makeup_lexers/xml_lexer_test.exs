@@ -82,6 +82,23 @@ defmodule MakeupLexers.XMLLexerTest do
                {:whitespace, "\n"}
              ]
     end
+
+    test "full doctype" do
+      assert lex("""
+             <!DOCTYPE html PUBLIC
+               "-//W3C//DTD XHTML Basic 1.1//EN"
+               "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">
+             """) == [
+               {:name_tag, "<!DOCTYPE"},
+               {:whitespace, " "},
+               {:name_class, "html"},
+               {:whitespace, " "},
+               {:text,
+                "PUBLIC\n  \"-//W3C//DTD XHTML Basic 1.1//EN\"\n  \"http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd\""},
+               {:name_tag, ">"},
+               {:whitespace, "\n"}
+             ]
+    end
   end
 
   describe "elements and attributes" do

@@ -9,6 +9,10 @@ defmodule MakeupLexers.HTMLLexerTest do
     |> Enum.map(fn {type, _meta, value} -> {type, IO.iodata_to_binary([value])} end)
   end
 
+  defp refute_any_errors(tokens) do
+    assert Enum.all?(tokens, fn {type, _} -> type != :error end)
+  end
+
   describe "embedded lexers" do
     test "lexes text/javascript with JavascriptLexer" do
       assert lex("""
@@ -139,25 +143,107 @@ defmodule MakeupLexers.HTMLLexerTest do
     end
   end
 
-  test "allows attributes without value" do
-    assert lex("<input disabled>") == [
-             {:punctuation, "<"},
-             {:name_tag, "input"},
-             {:whitespace, " "},
-             {:name_attribute, "disabled"},
-             {:punctuation, ">"}
-           ]
+  describe "doctype" do
+    test "case insensitive doctype" do
+      # https://html.spec.whatwg.org/multipage/syntax.html#the-doctype
+      assert lex("<!doctype html>") == [{:comment_preproc, "<!doctype html>"}]
+      assert lex("<!DocType html>") == [{:comment_preproc, "<!DocType html>"}]
+
+      assert lex(~s[<!DOCTYPE html SYSTEM "about:legacy-compat">]) == [
+               {:comment_preproc, "<!DOCTYPE html SYSTEM \"about:legacy-compat\">"}
+             ]
+
+      assert lex(~s[<!DOCTYPE html SYSTEM 'about:legacy-compat'>]) == [
+               {:comment_preproc, "<!DOCTYPE html SYSTEM 'about:legacy-compat'>"}
+             ]
+    end
   end
 
-  test "attributes don't need to be quoted" do
-    assert lex("<input type=text>") == [
-             {:punctuation, "<"},
-             {:name_tag, "input"},
-             {:whitespace, " "},
-             {:name_attribute, "type"},
-             {:operator, "="},
-             {:string, "text"},
-             {:punctuation, ">"}
-           ]
+  describe "attributes" do
+    test "allows attributes without value" do
+      assert lex("<input disabled>") == [
+               {:punctuation, "<"},
+               {:name_tag, "input"},
+               {:whitespace, " "},
+               {:name_attribute, "disabled"},
+               {:punctuation, ">"}
+             ]
+    end
+
+    test "attributes don't need to be quoted" do
+      assert lex("<input type=text>") == [
+               {:punctuation, "<"},
+               {:name_tag, "input"},
+               {:whitespace, " "},
+               {:name_attribute, "type"},
+               {:operator, "="},
+               {:string, "text"},
+               {:punctuation, ">"}
+             ]
+    end
+
+    test "single or double quoted values" do
+      assert lex("<input type=\"text\">") == [
+               {:punctuation, "<"},
+               {:name_tag, "input"},
+               {:whitespace, " "},
+               {:name_attribute, "type"},
+               {:operator, "="},
+               {:string, "\""},
+               {:string, "text"},
+               {:string, "\""},
+               {:punctuation, ">"}
+             ]
+
+      assert lex("<input type=\'text\'>") == [
+               {:punctuation, "<"},
+               {:name_tag, "input"},
+               {:whitespace, " "},
+               {:name_attribute, "type"},
+               {:operator, "="},
+               {:string, "'"},
+               {:string, "text"},
+               {:string, "'"},
+               {:punctuation, ">"}
+             ]
+    end
+  end
+
+  test "we don't care about missing end tags" do
+    # they are sometimes optional: https://html.spec.whatwg.org/multipage/syntax.html#optional-tags
+    refute_any_errors(
+      lex("""
+      <table>
+      <caption>37547 TEE Electric Powered Rail Car Train Functions (Abbreviated)
+      <colgroup><col><col><col>
+      <thead>
+      <tr>
+      <th>Function
+      <th>Control Unit
+      <th>Central Station
+      <tbody>
+      <tr>
+      <td>Headlights
+      <td>✔
+      <td>✔
+      <tr>
+      <td>Interior Lights
+      <td>✔
+      <td>✔
+      <tr>
+      <td>Electric locomotive operating sounds
+      <td>✔
+      <td>✔
+      <tr>
+      <td>Engineer's cab lighting
+      <td>
+      <td>✔
+      <tr>
+      <td>Station Announcements - Swiss
+      <td>
+      <td>✔
+      </table>
+      """)
+    )
   end
 end

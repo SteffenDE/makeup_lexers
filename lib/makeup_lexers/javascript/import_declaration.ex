@@ -5,6 +5,7 @@ defmodule MakeupLexers.Javascript.ImportDeclaration do
   alias MakeupLexers.Javascript.ImportAttributes
 
   # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import
+  # https://tc39.es/ecma262/multipage/ecmascript-language-scripts-and-modules.html#sec-imports
 
   # Whitespace and comments
   whitespace = ascii_string([?\r, ?\s, ?\n, ?\t], min: 1) |> token(:whitespace)

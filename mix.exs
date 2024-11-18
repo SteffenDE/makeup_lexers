@@ -10,7 +10,8 @@ defmodule MakeupLexers.MixProject do
       deps: deps(),
       docs: [
         main: "readme",
-        extras: Path.wildcard("examples/*.md") ++ ["README.md"]
+        extras: Path.wildcard("examples/*.md") ++ ["README.md"],
+        source_url: "https://github.com/SteffenDE/makeup_lexers"
       ],
       preferred_cli_env: [
         docs: :docs

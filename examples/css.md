@@ -58,6 +58,7 @@
   font-family: var(--font-primary);
   font-size: calc(var(--font-size-base) * 1.5);
   color: var(--color-primary);
+  background-image: url(https://example.com/image.jpg);
 }
 
 #main-content {

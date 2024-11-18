@@ -3,6 +3,10 @@ defmodule MakeupLexers.CSSLexer do
   A `Makeup` lexer for CSS using standard Pygments token types.
   """
 
+  # helpful: https://www.w3.org/TR/css-syntax-3/
+  #
+  # note that this lexer does not strictly follow the specification
+
   import NimbleParsec
   import Makeup.Lexer.Combinators
   import Makeup.Lexer.Groups
@@ -36,7 +40,6 @@ defmodule MakeupLexers.CSSLexer do
   @properties MapSet.new(Builtins.properties())
   @colors MapSet.new(Builtins.color_keywords())
   @keyword_values MapSet.new(Builtins.keyword_values())
-  @functions MapSet.new(Builtins.function_keywords())
 
   ###################################################################
   # Step #1: tokenize the input
@@ -137,7 +140,7 @@ defmodule MakeupLexers.CSSLexer do
     |> concat(identifier_start)
     |> concat(identifier_part)
     |> lexeme()
-    |> token(:name_label)
+    |> token(:name_constant)
 
   pseudo_selector =
     choice([string("::"), string(":")])
@@ -179,6 +182,16 @@ defmodule MakeupLexers.CSSLexer do
   operator = word_from_list(~w(+ > ~ - * | & /), :operator)
   punctuation = word_from_list(~w({ } \( \) [ ] ; : , .), :punctuation)
 
+  url =
+    token(string("url"), :name_function)
+    |> concat(token(string("("), :punctuation))
+    |> concat(
+      repeat(lookahead_not(string(")")) |> utf8_string([], 1))
+      |> lexeme()
+      |> token(:string)
+    )
+    |> concat(token(string(")"), :punctuation))
+
   # Error fallback
   any_char = utf8_char([]) |> token(:error)
 
@@ -192,16 +205,6 @@ defmodule MakeupLexers.CSSLexer do
       text in ["and", "or", "not", "only"] -> {:operator_word, %{}, text}
       String.starts_with?(text, "@") -> {:keyword_declaration, %{}, text}
       true -> {:name, %{}, text}
-    end
-  end
-
-  def process_function(text) do
-    base = String.trim_trailing(text, "(")
-
-    if base in @functions do
-      {:name_function, %{}, text}
-    else
-      {:name_function, %{}, text}
     end
   end
 
@@ -220,6 +223,7 @@ defmodule MakeupLexers.CSSLexer do
       id_selector,
       pseudo_selector,
       attribute_selector,
+      url,
       function_name,
       identifier,
       vendor_prefixed_identifier,
@@ -257,16 +261,6 @@ defmodule MakeupLexers.CSSLexer do
        ]) do
     [
       {:name_property, attrs, property},
-      {:punctuation, %{language: :css}, ":"} | postprocess_helper(rest)
-    ]
-  end
-
-  defp postprocess_helper([
-         {:name_builtin, attrs, property},
-         {:punctuation, _, ":"} | rest
-       ]) do
-    [
-      {:name_builtin, attrs, property},
       {:punctuation, %{language: :css}, ":"} | postprocess_helper(rest)
     ]
   end

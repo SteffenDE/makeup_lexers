@@ -196,16 +196,6 @@ defmodule MakeupLexers.CSS.Builtins do
     zoom-out
   )
 
-  @function_keywords ~w(
-    attr blackness blend blenda blur brightness calc circle color-mod contrast
-    counter cubic-bezier device-cmyk drop-shadow ellipse gray grayscale hsl
-    hsla hue hue-rotate hwb image inset invert lightness linear-gradient
-    matrix matrix3d opacity perspective polygon radial-gradient rect rgb rgba
-    rotate rotate3d rotateX rotateY rotateZ saturate saturation scale scale3d
-    scaleX scaleY scaleZ sepia shade skewX skewY steps tint toggle translate
-    translate3d translateX translateY translateZ url whiteness
-  )
-
   @doc "Get list of CSS properties"
   def properties, do: @css_properties
 
@@ -214,7 +204,4 @@ defmodule MakeupLexers.CSS.Builtins do
 
   @doc "Get list of CSS keyword values"
   def keyword_values, do: @keyword_values
-
-  @doc "Get list of CSS function names"
-  def function_keywords, do: @function_keywords
 end

@@ -6,6 +6,7 @@ defmodule MakeupLexers.Javascript.ExportDeclaration do
   alias MakeupLexers.Javascript.ImportAttributes
 
   # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+  # https://tc39.es/ecma262/multipage/ecmascript-language-scripts-and-modules.html#sec-exports
 
   # Strings
   string_escape = string("\\") |> utf8_string([], 1) |> token(:string_escape)

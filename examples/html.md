@@ -194,6 +194,7 @@
 <.header>
   <.button>Click</.button>
   <MyComponent.card />
+  <p>We support interpolation with {@name} and <%= @name %>.</p>
   <script>
     console.log("Hello World");
   </script>

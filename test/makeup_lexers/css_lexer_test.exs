@@ -80,7 +80,7 @@ defmodule MakeupLexers.CSSLexerTest do
     end
 
     test "id selectors" do
-      assert lex("#header") == [{:name_label, "#header"}]
+      assert lex("#header") == [{:name_constant, "#header"}]
     end
 
     test "pseudo selectors" do
@@ -184,7 +184,7 @@ defmodule MakeupLexers.CSSLexerTest do
       assert lex("url('image.jpg')") == [
                {:name_function, "url"},
                {:punctuation, "("},
-               {:string_single, "'image.jpg'"},
+               {:string, "'image.jpg'"},
                {:punctuation, ")"}
              ]
     end

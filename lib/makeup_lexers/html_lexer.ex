@@ -3,11 +3,18 @@ defmodule MakeupLexers.HTMLLexer do
   A `Makeup` lexer for HTML (HyperText Markup Language).
   """
 
+  # helpful: https://html.spec.whatwg.org/multipage/syntax.html#syntax
+  #          https://html.spec.whatwg.org/multipage/parsing.html#parsing
+  #          https://html.spec.whatwg.org/multipage/parsing.html#tokenization
+  #
+  # note that this lexer does not strictly follow the specification
+
   @behaviour Makeup.Lexer
 
   import NimbleParsec
   import Makeup.Lexer.Combinators
   import Makeup.Lexer.Groups
+  import MakeupLexers.Helpers
 
   xml_lexer = parsec({MakeupLexers.XMLLexer, :root_element})
   attribute = parsec({MakeupLexers.XMLLexer, :attribute})
@@ -32,6 +39,17 @@ defmodule MakeupLexers.HTMLLexer do
   defp put_script_type({ttype, meta, value}) do
     {ttype, meta, value}
   end
+
+  doctype =
+    choice([
+      anycase_ascii_string("<!DOCTYPE html>"),
+      anycase_ascii_string("<!DOCTYPE html SYSTEM ")
+      |> concat(utf8_char([?", ?']))
+      |> string("about:legacy-compat")
+      |> concat(utf8_char([?", ?']))
+      |> concat(string(">"))
+    ])
+    |> token(:comment_preproc)
 
   script_content =
     repeat(
@@ -70,6 +88,7 @@ defmodule MakeupLexers.HTMLLexer do
 
   root_element_combinator =
     choice([
+      doctype,
       script,
       style,
       xml_lexer

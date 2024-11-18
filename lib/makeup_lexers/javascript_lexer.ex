@@ -7,6 +7,10 @@ defmodule MakeupLexers.JavascriptLexer do
   properly handle special cases like arrow functions, regexes, etc.
   """
 
+  # helpful: https://tc39.es/ecma262/multipage/ecmascript-language-lexical-grammar.html#sec-ecmascript-language-lexical-grammar
+  #
+  # note that this lexer does not strictly follow the specification
+
   import NimbleParsec
   import Makeup.Lexer.Combinators
   import Makeup.Lexer.Groups
