@@ -246,4 +246,27 @@ defmodule MakeupLexers.HTMLLexerTest do
       """)
     )
   end
+
+  test "empty attributes are handled (HEEx)" do
+    assert lex("""
+           <button type= class="rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3 text-white"></button>
+           """) == [
+             {:punctuation, "<"},
+             {:name_tag, "button"},
+             {:whitespace, " "},
+             {:name_attribute, "type"},
+             {:operator, "="},
+             {:whitespace, " "},
+             {:name_attribute, "class"},
+             {:operator, "="},
+             {:string, "\""},
+             {:string, "rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3 text-white"},
+             {:string, "\""},
+             {:punctuation, ">"},
+             {:punctuation, "</"},
+             {:name_tag, "button"},
+             {:punctuation, ">"},
+             {:whitespace, "\n"}
+           ]
+  end
 end

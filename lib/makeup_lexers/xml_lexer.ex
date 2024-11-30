@@ -75,7 +75,12 @@ defmodule MakeupLexers.XMLLexer do
   attribute_value =
     choice([
       attribute_value_double,
-      attribute_value_single,
+      attribute_value_single
+    ])
+
+  attribute_value_permissive =
+    choice([
+      attribute_value,
       # HTML5 also allows <input type=text> without quotes;
       # so while it would not be valid XML, we still allow it here
       token(utf8_string([not: ?\s, not: ?>], min: 1), :string)
@@ -105,12 +110,11 @@ defmodule MakeupLexers.XMLLexer do
         optional(whitespace)
         |> concat(token(string("="), :operator))
         |> concat(
-          optional(
-            choice([
-              whitespace |> concat(attribute_value),
-              attribute_value
-            ])
-          )
+          choice([
+            whitespace |> concat(attribute_value),
+            attribute_value_permissive,
+            empty()
+          ])
         )
       )
     )
